@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ f.name }} — QR{% endblock %}
+{% block content %}
+<a class="back" href="{{ url_for('index') }}">← Назад к списку</a>
+<h1>{{ f.name }}</h1>
+
+{% if f.needs_rename %}
+<div class="warn">
+  ⚠ Имя файла содержит символы (например ™, ®, диакритику), из-за которых
+  FBI может не скачать файл на 3DS. Рекомендуется исправить имя на:
+  <b>{{ f.safe_name }}</b>
+  <form method="post" action="{{ url_for('rename', file_id=f.id) }}"
+        onsubmit="return confirm('Переименовать файл в: {{ f.safe_name }}?');">
+    <button type="submit" class="btn secondary">Исправить имя сейчас</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="qr-wrap">
+  <img class="qr" src="{{ url_for('qr_svg', file_id=f.id) }}" alt="QR-код для установки в FBI">
+</div>
+
+<p class="hint">На 3DS в FBI: <b>Remote Install → Scan QR Code</b> и наведи камеру на код выше.</p>
+
+<div class="url-box">
+  <code id="url-text">{{ download_url }}</code>
+  <button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('url-text').textContent)">Копировать</button>
+</div>
+{% endblock %}

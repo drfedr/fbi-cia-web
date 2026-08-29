@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Библиотека CIA{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <input id="search" type="search" placeholder="Поиск по имени..." autofocus>
+  <span class="count">{{ files|length }} файлов</span>
+</div>
+
+{% if not files %}
+<p class="empty">
+  Файлов .cia не найдено в <code>{{ cia_dir }}</code>.<br>
+  Скопируй файлы в примонтированную папку и обнови страницу.
+</p>
+{% else %}
+<table id="file-table">
+  <thead>
+    <tr>
+      <th>Имя</th>
+      <th>Папка</th>
+      <th>Размер</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for f in files %}
+    <tr data-name="{{ f.name|lower }}">
+      <td>
+        {{ f.name }}
+        {% if f.needs_rename %}
+        <span class="badge" title="Имя содержит символы, из-за которых FBI может не скачать файл">⚠ спецсимволы</span>
+        {% endif %}
+      </td>
+      <td class="muted">{{ f.dir or '—' }}</td>
+      <td class="muted">{{ f.size|human_size }}</td>
+      <td class="actions">
+        <a class="btn" href="{{ url_for('file_page', file_id=f.id) }}">QR-код</a>
+        {% if f.needs_rename %}
+        <form method="post" action="{{ url_for('rename', file_id=f.id) }}"
+              onsubmit="return confirm('Переименовать файл в: {{ f.safe_name }}?');">
+          <button type="submit" class="btn secondary">Исправить имя</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<script>
+document.getElementById('search').addEventListener('input', function (e) {
+  var q = e.target.value.toLowerCase();
+  document.querySelectorAll('#file-table tbody tr').forEach(function (row) {
+    row.style.display = row.dataset.name.includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

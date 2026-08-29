@@ -1,0 +1,16 @@
+services:
+  fbi-cia-web:
+    image: sloth62/fbi-cia-web:latest
+    # Для локальной сборки из исходников вместо готового образа с Docker Hub
+    # закомментируй строку выше и раскомментируй следующую:
+    # build: .
+    container_name: fbi-cia-web
+    ports:
+      - "8000:8000"
+    volumes:
+      # Замени левую часть на реальный путь к хранилищу с .cia файлами
+      - ./cia:/cia
+    environment:
+      - CIA_DIR=/cia
+      - PORT=8000
+    restart: unless-stopped
